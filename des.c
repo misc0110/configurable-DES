@@ -216,8 +216,8 @@ int des_init(const unsigned char key[], const DES_Config cfg) {
     }
 
     if (cfg.check_parity) {
-        for(i = 0; i < 8; i++) {
-            if(count_bit(des_key[i]) % 2 != 1) {
+        for (i = 0; i < 8; i++) {
+            if (count_bit(des_key[i]) % 2 != 1) {
                 printf("Wrong parity for key in byte %i!\n", i + 1);
                 return 0;
             }

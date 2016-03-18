@@ -25,12 +25,12 @@ int main() {
     des_encrypt(message, output);
 
     int i;
-    for(i = 0; i < 8; i++) printf("%02X ", output[i]);
+    for (i = 0; i < 8; i++) printf("%02X ", output[i]);
     printf("\n");
 
     // Decrypt to check
     des_decrypt(output, msg);
-    for(i = 0; i < 8; i++) printf("%c", msg[i]);
+    for (i = 0; i < 8; i++) printf("%c", msg[i]);
     printf("\n");
 
     // Initialize DES with custom config and 64bit key
@@ -39,15 +39,13 @@ int main() {
     // Encrypt same message
     des_encrypt(message, output);
 
-    for(i = 0; i < 8; i++) printf("%02X ", output[i]);
+    for (i = 0; i < 8; i++) printf("%02X ", output[i]);
     printf("\n");
 
     // Decrypt to check
     des_decrypt(output, msg);
-    for(i = 0; i < 8; i++) printf("%c", msg[i]);
+    for (i = 0; i < 8; i++) printf("%c", msg[i]);
     printf("\n");
-
-
 
     return 0;
 }
