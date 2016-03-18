@@ -3,17 +3,13 @@
 #include <string.h>
 #include "des.h"
 
-const DES_Config default_config = {
-        .iperm = 1, .fperm = 1, .swap_before_fperm = 1, .check_parity = 1, .key_56bit = 0, .rounds = 16
-};
-
 #define MAX_ROUNDS 16
 
 DES_Config config;
 uint8_t des_key[8];
 uint8_t round_key[MAX_ROUNDS][8];
 
-#define DEBUG printf
+#define DEBUG //printf
 
 
 const uint8_t PC1[] = {
@@ -137,23 +133,42 @@ const uint8_t P[] = {
         19, 13, 30, 6, 22, 11, 4, 25
 };
 
+
+const DES_Config DES_default = {
+        .iperm = 1, .fperm = 1, .swap_before_fperm = 1, .check_parity = 0, .key_56bit = 0, .rounds = 16,
+        .E = E, .P = P, .FP = FP, .IP = IP, .keyShifts = key_shifts, .PC1 = PC1, .PC2 = PC2,
+        .S1 = S1, .S2 = S2, .S3 = S3, .S4 = S4, .S5 = S5, .S6 = S6, .S7 = S7, .S8 = S8
+};
+
+
+//---------------------------------------------------------------------------------------------------------------------
 inline int get_bit(const uint8_t *bitfield, int bit) {
     return (bitfield[bit / 8] & (1 << (7 - (bit % 8)))) ? 1 : 0;
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 inline void set_bit(uint8_t *bitfield, int bit) {
     bitfield[bit / 8] |= 1 << (7 - (bit % 8));
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 inline void clear_bit(uint8_t *bitfield, int bit) {
     bitfield[bit / 8] &= ~(1 << (7 - (bit % 8)));
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 inline void change_bit(uint8_t *bitfield, int bit, int val) {
     if (val) set_bit(bitfield, bit);
     else clear_bit(bitfield, bit);
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+uint8_t count_bit(uint8_t x) {
+    const unsigned char ones[] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
+    return ones[x & 0xf] + ones[x >> 4];
+}
+
+//---------------------------------------------------------------------------------------------------------------------
 uint32_t left_shift(uint32_t v) {
     v <<= 1;
     v |= (v & (1 << 28)) ? 1 : 0;
@@ -161,6 +176,7 @@ uint32_t left_shift(uint32_t v) {
     return v;
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 void print_key(const uint8_t *key) {
     int i;
     DEBUG("Key: ");
@@ -170,7 +186,8 @@ void print_key(const uint8_t *key) {
     DEBUG("\n");
 }
 
-int des_init(const unsigned char *key, const DES_Config cfg) {
+//---------------------------------------------------------------------------------------------------------------------
+int des_init(const unsigned char key[], const DES_Config cfg) {
     int i, key_bit = 0, b, round, shifts;
     config = cfg;
 
@@ -182,14 +199,14 @@ int des_init(const unsigned char *key, const DES_Config cfg) {
     // copy or expand key, depending on number of bits
     for (i = 0; i < 64; i++) {
         if (cfg.key_56bit) {
-            if (i % 8 != 0 || !i) {
+            if (i % 8 != 7) {
                 change_bit(des_key, i, get_bit((const uint8_t *) key, key_bit));
                 key_bit++;
             } else {
                 if (!cfg.check_parity) {
                     clear_bit(des_key, i);
                 } else {
-                    // TODO: correct parity
+                    change_bit(des_key, i, (count_bit(des_key[i / 8]) + 1) % 2);
                 }
             }
         } else {
@@ -199,7 +216,12 @@ int des_init(const unsigned char *key, const DES_Config cfg) {
     }
 
     if (cfg.check_parity) {
-        // TODO: check parity
+        for(i = 0; i < 8; i++) {
+            if(count_bit(des_key[i]) % 2 != 1) {
+                printf("Wrong parity for key in byte %i!\n", i + 1);
+                return 0;
+            }
+        }
     }
 
     print_key(key);
@@ -211,7 +233,7 @@ int des_init(const unsigned char *key, const DES_Config cfg) {
     uint8_t kp[7];
     memset(kp, 0, sizeof(kp));
     for (b = 0; b < 56; b++) {
-        change_bit(kp, b, get_bit(des_key, PC1[b] - 1));
+        change_bit(kp, b, get_bit(des_key, config.PC1[b] - 1));
     }
     DEBUG("K+ ");
     print_key(kp);
@@ -234,7 +256,7 @@ int des_init(const unsigned char *key, const DES_Config cfg) {
         // do key shifting for C and D
         c[round + 1] = c[round];
         d[round + 1] = d[round];
-        for (shifts = 0; shifts < key_shifts[round]; shifts++) {
+        for (shifts = 0; shifts < config.keyShifts[round]; shifts++) {
             c[round + 1] = left_shift(c[round + 1]);
             d[round + 1] = left_shift(d[round + 1]);
         }
@@ -255,7 +277,7 @@ int des_init(const unsigned char *key, const DES_Config cfg) {
         // apply PC2
         memset(round_key[round], 0, sizeof(round_key[round]));
         for (b = 0; b < 48; b++) {
-            change_bit(round_key[round], b, get_bit(rk, PC2[b] - 1));
+            change_bit(round_key[round], b, get_bit(rk, config.PC2[b] - 1));
         }
         DEBUG("Round %d ", round);
         print_key(round_key[round]);
@@ -263,6 +285,7 @@ int des_init(const unsigned char *key, const DES_Config cfg) {
     return 1;
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 uint32_t des_f(uint32_t r, uint32_t round) {
     // expand r
     uint8_t re[6];
@@ -270,7 +293,7 @@ uint32_t des_f(uint32_t r, uint32_t round) {
 
     memset(re, 0, sizeof(re));
     for (b = 0; b < 48; b++) {
-        change_bit(re, b, r & (1 << (31 - (E[b] - 1))));
+        change_bit(re, b, r & (1 << (31 - (config.E[b] - 1))));
     }
     DEBUG("E ");
     print_key(re);
@@ -285,7 +308,7 @@ uint32_t des_f(uint32_t r, uint32_t round) {
 
     // apply sboxes
     const uint8_t *S[] = {
-            S1, S2, S3, S4, S5, S6, S7, S8
+            config.S1, config.S2, config.S3, config.S4, config.S5, config.S6, config.S7, config.S8
     };
     uint32_t res = 0, res_p = 0;
     for (b = 0; b < 8; b++) {
@@ -299,13 +322,14 @@ uint32_t des_f(uint32_t r, uint32_t round) {
 
     // apply permutation
     for (b = 0; b < 32; b++) {
-        if (res & (1 << (31 - (P[b] - 1)))) res_p |= (1 << (31 - b));
+        if (res & (1 << (31 - (config.P[b] - 1)))) res_p |= (1 << (31 - b));
     }
     DEBUG("P: %08X\n", res_p);
     return res_p;
 }
 
-int des_encrypt(const unsigned char message[8], unsigned char output[8]) {
+//---------------------------------------------------------------------------------------------------------------------
+int des_crypt(const unsigned char message[8], unsigned char output[8], int dir) {
     uint8_t msg[8];
     int b, round, i;
 
@@ -313,7 +337,7 @@ int des_encrypt(const unsigned char message[8], unsigned char output[8]) {
     memset(msg, 0, sizeof(msg));
     if (config.iperm) {
         for (b = 0; b < 64; b++) {
-            change_bit(msg, b, get_bit((const uint8_t *) message, IP[b] - 1));
+            change_bit(msg, b, get_bit((const uint8_t *) message, config.IP[b] - 1));
         }
     } else {
         for (b = 0; b < 8; b++) msg[b] = message[b];
@@ -334,7 +358,7 @@ int des_encrypt(const unsigned char message[8], unsigned char output[8]) {
     // rounds
     for (round = 0; round < config.rounds; round++) {
         uint32_t old_r = r;
-        r = l ^ des_f(r, round);
+        r = l ^ des_f(r, (dir == 0) ? round : (config.rounds - 1 - round));
         l = old_r;
         DEBUG("L%d: %08X, R%d: %08X\n", round + 1, l, round + 1, r);
     }
@@ -359,10 +383,20 @@ int des_encrypt(const unsigned char message[8], unsigned char output[8]) {
     memset(output, 0, sizeof(output));
     if (config.fperm) {
         for (b = 0; b < 64; b++) {
-            change_bit(output, b, get_bit(LR, FP[b] - 1));
+            change_bit(output, b, get_bit(LR, config.FP[b] - 1));
         }
     } else {
         for (b = 0; b < 8; b++) output[b] = LR[b];
     }
     return 1;
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+int des_encrypt(const unsigned char message[8], unsigned char output[8]) {
+    return des_crypt(message, output, 0);
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+int des_decrypt(const unsigned char message[8], unsigned char output[8]) {
+    return des_crypt(message, output, 1);
 }
