@@ -20,25 +20,25 @@ There is an example called ```test.c``` that demonstrates the usage. It can be s
 At first, the algorithm has to be configured using a ```DES_Config``` structure. It is advisable to copy the ```DES_default``` config and modify the copy. 
 
 A simple example to disable the initial and final permutations (IP and FP) and reduce the number of rounds to 4 would be
-```
-  DES_Config cfg = DES_default;
-  cfg.iperm = 0; // disable initial permutation
-  cfg.fperm = 0; // disable final permutation
-  cfg.rounds = 4; // reduce to 4 rounds
+```C
+DES_Config cfg = DES_default;
+cfg.iperm = 0; // disable initial permutation
+cfg.fperm = 0; // disable final permutation
+cfg.rounds = 4; // reduce to 4 rounds
 ```
 
 Then, the algorithm has to be initialized using the key and the configuration:
-```
-  const unsigned char key[] = {0x3b, 0x38, 0x98, 0x37, 0x15, 0x20, 0xf7, 0x5e};
-  des_init(key, cfg);
+```C
+const unsigned char key[] = {0x3b, 0x38, 0x98, 0x37, 0x15, 0x20, 0xf7, 0x5e};
+des_init(key, cfg);
 ```
 
 Finally, the cipher can be used to encrypt and decrypt messages:
-```
-    const unsigned char message[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-    unsigned char output[8], msg[8];
-    des_encrypt(message, output); // encrypt message to output
-    des_decrypt(output, msg); // decrypt output to msg -> must be same as the original message
+```C
+const unsigned char message[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+unsigned char output[8], msg[8];
+des_encrypt(message, output); // encrypt message to output
+des_decrypt(output, msg); // decrypt output to msg -> must be same as the original message
 ```
 
 # License
