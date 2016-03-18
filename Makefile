@@ -1,5 +1,9 @@
-all: test.o des.o
+all: test
+	
+test: test.o des.o
 	gcc test.o des.o -g -o test
+run: test
+	./test
 	
 test.o: test.c
 	gcc -c test.c -o test.o -g -Wall
