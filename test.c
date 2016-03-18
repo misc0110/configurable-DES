@@ -14,8 +14,8 @@ int main() {
     const unsigned char message[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
     unsigned char output[8], msg[8];
 
-    des_init(&key, cfg);
-    des_encrypt(&message, (char*)output);
+    des_init(key, cfg);
+    des_encrypt(message, output);
 
     int i;
     for(i = 0; i < 8; i++) printf("%02X ", output[i]);

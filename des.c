@@ -380,7 +380,7 @@ int des_crypt(const unsigned char message[8], unsigned char output[8], int dir) 
     print_key(LR);
 
     // final permutation
-    memset(output, 0, sizeof(output));
+    memset(output, 0, 8);
     if (config.fperm) {
         for (b = 0; b < 64; b++) {
             change_bit(output, b, get_bit(LR, config.FP[b] - 1));
