@@ -286,7 +286,7 @@ int des_init(const unsigned char key[], const DES_Config cfg) {
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-void des_get_roundkey(const unsigned char roundkey[6], int round) {
+void des_get_roundkey(unsigned char roundkey[6], int round) {
     memcpy(roundkey, round_key[round], 6);
 }
 

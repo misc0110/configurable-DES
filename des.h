@@ -63,7 +63,7 @@ int des_decrypt(const unsigned char message[8], unsigned char output[8]);
 ///
 /// @param  roundkey Array to store the round key to. It must have a size of 6 bytes (48bit)
 /// @param  round The round of which the key should be retrieved from
-void des_get_roundkey(const unsigned char roundkey[6], int round);
+void des_get_roundkey(unsigned char roundkey[6], int round);
 
 
 #endif

@@ -17,18 +17,29 @@ int main() {
 
     // Test message
     const unsigned char message[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-    unsigned char output[8], msg[8];
+    unsigned char output[8], msg[8], roundkey[6];
 
     // Initialize DES with custom config and 64bit key
     des_init(key, cfg);
+    
+    // Show round keys
+    int i, b;
+    for(i = 0; i < cfg.rounds; i++) {
+      des_get_roundkey(roundkey, i);
+      printf("Round Key %d: ", i + 1);
+      for(b = 0; b < 6; b++) printf("%02X ", roundkey[b]);
+      printf("\n");
+    }
+    
     // Encrypt message
     des_encrypt(message, output);
 
-    int i;
+    printf("Encrypted: ");
     for (i = 0; i < 8; i++) printf("%02X ", output[i]);
     printf("\n");
 
     // Decrypt to check
+    printf("Decrypted: ");
     des_decrypt(output, msg);
     for (i = 0; i < 8; i++) printf("%c", msg[i]);
     printf("\n");
@@ -39,11 +50,13 @@ int main() {
     // Encrypt same message
     des_encrypt(message, output);
 
+    printf("Encrypted: ");
     for (i = 0; i < 8; i++) printf("%02X ", output[i]);
     printf("\n");
 
     // Decrypt to check
     des_decrypt(output, msg);
+    printf("Decrypted: ");
     for (i = 0; i < 8; i++) printf("%c", msg[i]);
     printf("\n");
 
