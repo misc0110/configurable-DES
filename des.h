@@ -6,6 +6,8 @@ typedef struct {
     int iperm : 1;
     // do final permutation FP (default: true)
     int fperm : 1;
+    // do permutation P (default: true)
+    int p : 1;
     // swap L and R before final permutation FP (default: true)
     int swap_before_fperm : 1;
     // check parity of key (default: false)
@@ -53,5 +55,15 @@ int des_encrypt(const unsigned char message[8], unsigned char output[8]);
 /// @param  output A buffer to which the decrypted message is saved to. It must have a size of at least 8 bytes
 /// @return 1 on success, 0 otherwise
 int des_decrypt(const unsigned char message[8], unsigned char output[8]);
+
+/// Get DES round key
+///
+/// Retrieves the round key of the given round.
+//  The des_init() function has to be called before this function can be called.
+///
+/// @param  roundkey Array to store the round key to. It must have a size of 6 bytes (48bit)
+/// @param  round The round of which the key should be retrieved from
+void des_get_roundkey(const unsigned char roundkey[6], int round);
+
 
 #endif
