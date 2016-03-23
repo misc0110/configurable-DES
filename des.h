@@ -25,7 +25,7 @@ typedef struct {
 /// A DES configuration structure containing the default parameters for DES.
 /// You should take this as a basis for custom configurations.
 ///
-const DES_Config DES_default;
+extern const DES_Config DES_default;
 
 /// DES initialization
 ///

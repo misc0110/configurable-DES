@@ -135,8 +135,8 @@ static const uint8_t P[] = {
 
 
 const DES_Config DES_default = {
-        .iperm = 1, .fperm = 1, .swap_before_fperm = 1, .check_parity = 0, .key_56bit = 0, .rounds = 16, .p = 1,
-        .E = E, .P = P, .FP = FP, .IP = IP, .keyShifts = key_shifts, .PC1 = PC1, .PC2 = PC2,
+        .iperm = 1, .fperm = 1, .p = 1, .swap_before_fperm = 1, .check_parity = 0, .key_56bit = 0, .rounds = 16, 
+        .IP = IP, .FP = FP, .PC1 = PC1, .PC2 = PC2, .keyShifts = key_shifts, .E = E, .P = P,  
         .S1 = S1, .S2 = S2, .S3 = S3, .S4 = S4, .S5 = S5, .S6 = S6, .S7 = S7, .S8 = S8
 };
 
