@@ -65,5 +65,15 @@ int des_decrypt(const unsigned char message[8], unsigned char output[8]);
 /// @param  round The round of which the key should be retrieved from
 void des_get_roundkey(unsigned char roundkey[6], int round);
 
+/// DES helper for accessing bits as described in "Linear Cryptanalysis Method for DES Cipher (M Matsui)"
+///
+/// Retrieves certain bits from a key with the same naming conventions as in the paper. 
+///
+/// @param bits  Bit field (key) to extract bit from
+/// @param index Bit index
+#define HIGH(bits, index) get_bit((unsigned char*)&bits, 31 - (index))
+#define LOW(bits, index) get_bit((unsigned char*)&bits, 63 - (index))
+#define RK(bits, index) get_bit((unsigned char*)&bits, 47 - (index))
+
 
 #endif
