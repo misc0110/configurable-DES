@@ -1,4 +1,5 @@
 # Configurable DES
+[![Build Status](https://travis-ci.org/misc0110/configurable-DES.svg?branch=master)](https://travis-ci.org/misc0110/configurable-DES)
 
 The goal of Configurable DES is to provide a customizable DES implementation. It is especially designed to test attacks against DES by allowing to change practically all aspects of the algorithm:
 * Number of rounds (from 0 to 16)
