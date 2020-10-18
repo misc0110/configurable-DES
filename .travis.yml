@@ -17,7 +17,7 @@ jobs:
 
 script:
     - make
-    - ./test | grep 'Encrypted: 60 C6 C8 DE 7F 78 D3 C3'
-    - ./test | grep 'Decrypted: ABCDEFGH'
+    - "./test | grep 'Encrypted: 60 C6 C8 DE 7F 78 D3 C3'"
+    - "./test | grep 'Decrypted: ABCDEFGH'"
 
  
