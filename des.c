@@ -142,22 +142,22 @@ const DES_Config DES_default = {
 
 
 //---------------------------------------------------------------------------------------------------------------------
-inline int get_bit(const uint8_t *bitfield, int bit) {
+int get_bit(const uint8_t *bitfield, int bit) {
     return (bitfield[bit / 8] & (1 << (7 - (bit % 8)))) ? 1 : 0;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-inline void set_bit(uint8_t *bitfield, int bit) {
+void set_bit(uint8_t *bitfield, int bit) {
     bitfield[bit / 8] |= 1 << (7 - (bit % 8));
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-inline void clear_bit(uint8_t *bitfield, int bit) {
+void clear_bit(uint8_t *bitfield, int bit) {
     bitfield[bit / 8] &= ~(1 << (7 - (bit % 8)));
 }
 
 //---------------------------------------------------------------------------------------------------------------------
-inline void change_bit(uint8_t *bitfield, int bit, int val) {
+void change_bit(uint8_t *bitfield, int bit, int val) {
     if (val) set_bit(bitfield, bit);
     else clear_bit(bitfield, bit);
 }

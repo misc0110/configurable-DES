@@ -40,9 +40,3 @@ unsigned char output[8], msg[8];
 des_encrypt(message, output); // encrypt message to output
 des_decrypt(output, msg); // decrypt output to msg -> must be same as the original message
 ```
-
-# License
-
-Configurable DES is public domain. As should all quality software be.
-
-Open Source. Open Academia. Open Minds.
